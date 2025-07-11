@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Momotarō: The Peach Boy Adventure</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sawarabi+Mincho&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Sawarabi Mincho', serif;
+      background-color: #fff8e7;
+      margin: 0;
+      padding: 20px;
+      color: #2c3e50;
+    }
+    #game {
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #e74c3c;
+    }
+    .choice {
+      display: block;
+      background-color: #f39c12;
+      color: white;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    .choice:hover {
+      background-color: #e67e22;
+      transform: scale(1.05);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    #character-img {
+      display: block;
+      margin: 0 auto 20px auto;
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <h1>Momotarō: The Peach Boy</h1>
+    <img id="character-img" src="" alt="Scene Illustration" style="display:none;" />
+    <div id="story"></div>
+    <div id="choices"></div>
+  </div>
+
+  <script>
+    const storyText = document.getElementById("story");
+    const choicesDiv = document.getElementById("choices");
+    const characterImg = document.getElementById("character-img");
+
+    let storyIndex = "start";
+
+    const story = {
+      start: {
+        text: `An old couple discovers a giant peach floating down the river. To their surprise, a boy is inside! They name him Momotarō. As he grows older, he decides to set out on a quest to defeat the ogres who terrorize the land.`,
+        image: "images/peach_river.jpg",
+        choices: [
+          { text: "Begin your journey", next: "meet_animals" }
+        ]
+      },
+      meet_animals: {
+        text: `On the road, Momotarō meets a dog, a monkey, and a pheasant. They ask to join him if he shares his millet dumplings.`,
+        image: "images/animals_meet.jpg",
+        choices: [
+          { text: "Share the dumplings", next: "animal_join" },
+          { text: "Refuse to share", next: "animal_refuse" }
+        ]
+      },
+      animal_join: {
+        text: `The animals happily join you. Together, you journey to the island of the ogres. Along the way, you reach a fork in the road.`,
+        image: "images/group_travel.jpg",
+        choices: [
+          { text: "Take the dark forest path", next: "dark_forest" },
+          { text: "Take the long mountain road", next: "mountain_road" }
+        ]
+      },
+      dark_forest: {
+        text: `The dark forest is eerie. Strange sounds echo around you. Suddenly, you're ambushed by shadow spirits. Your team works together to defeat them, earning a magical charm of protection.`,
+        image: "images/dark_forest.jpg",
+        choices: [
+          { text: "Continue to ogre island", next: "approach_island" }
+        ]
+      },
+      mountain_road: {
+        text: `The mountain road is peaceful but slow. Along the way, you help a traveler fix his broken cart. In return, he gives you a powerful rice ball that can heal wounds.`,
+        image: "images/mountain_road.jpg",
+        choices: [
+          { text: "Continue to ogre island", next: "approach_island" }
+        ]
+      },
+      approach_island: {
+        text: `You arrive at the shores of Ogre Island. You see the fortress in the distance. Do you charge in or sneak around the back?` ,
+        image: "images/ogre_island.jpg",
+        choices: [
+          { text: "Sneak in with your team", next: "stealth_win" },
+          { text: "Charge into battle", next: "charge_win" }
+        ]
+      },
+      animal_refuse: {
+        text: `The animals walk away disappointed. You continue alone and face many hardships. Eventually, you arrive at Ogre Island, exhausted.`,
+        image: "images/lonely_travel.jpg",
+        choices: [
+          { text: "Sneak into the ogre's base", next: "solo_stealth" },
+          { text: "Attack head-on", next: "solo_attack" }
+        ]
+      },
+      stealth_win: {
+        text: `With help from your animal friends and the magical charm, you sneak in and defeat the ogres using clever tactics. The villagers are safe and celebrate your return!` ,
+        image: "images/victory.jpg",
+        choices: [
+          { text: "Play again", next: "start" }
+        ]
+      },
+      charge_win: {
+        text: `The battle is fierce, but your friendship and the power of the rice ball turn the tide. You win and bring peace to the land!` ,
+        image: "images/battle.jpg",
+        choices: [
+          { text: "Play again", next: "start" }
+        ]
+      },
+      solo_stealth: {
+        text: `You try to sneak in alone but are caught and thrown out by the ogres. Next time, perhaps allies would help.`,
+        image: "images/caught.jpg",
+        choices: [
+          { text: "Try again", next: "start" }
+        ]
+      },
+      solo_attack: {
+        text: `You bravely charge the fortress, but the ogres overpower you. You're forced to retreat, learning a tough lesson about teamwork.`,
+        image: "images/fail.jpg",
+        choices: [
+          { text: "Try again", next: "start" }
+        ]
+      }
+    };
+
+    function typeWriter(text, element, speed = 30, callback) {
+      let i = 0;
+      element.innerHTML = "";
+      function type() {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        } else if (callback) {
+          callback();
+        }
+      }
+      type();
+    }
+
+    function renderScene(index) {
+      storyIndex = index;
+      const scene = story[index];
+
+      // Show image if available
+      if (scene.image) {
+        characterImg.style.display = 'block';
+        characterImg.src = scene.image;
+      } else {
+        characterImg.style.display = 'none';
+      }
+
+      typeWriter(scene.text, storyText, 30, () => {
+        choicesDiv.innerHTML = "";
+        scene.choices.forEach(choice => {
+          const button = document.createElement("button");
+          button.innerText = choice.text;
+          button.className = "choice";
+          button.onclick = () => renderScene(choice.next);
+          choicesDiv.appendChild(button);
+        });
+      });
+    }
+
+    renderScene(storyIndex);
+  </script>
+</body>
+</html>
